@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة انسحاب النقاط</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .cartoon-box {
+            background: #ffffff;
+            color: #1f2937;
+            border: 4px solid #4f46e5;
+            border-radius: 24px;
+            box-shadow: 0 10px 0 #312e81;
+        }
+        .cartoon-btn {
+            border: 3px solid #1e1b4b;
+            border-radius: 16px;
+            box-shadow: 0 6px 0 #1e1b4b;
+            transition: all 0.1s ease;
+            font-weight: 900;
+        }
+        .cartoon-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #1e1b4b;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-black text-yellow-300">🚀 مغامرة انسحاب النقاط</h1>
+            <p class="text-indigo-200 font-bold mt-2">تحدي ممتع وسهل في المستوى الديكارتي!</p>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="cartoon-box p-8 text-center">
+            <div class="text-6xl mb-4">🎯</div>
+            <h2 class="text-2xl font-black text-indigo-900 mb-4">أهلاً بك يا بطل الرياضيات!</h2>
+            <input type="text" id="player-name" placeholder="اكتب اسمك الثلاثي هنا..." class="w-full p-4 text-center text-xl mb-4 text-indigo-900 border-4 border-indigo-500 rounded-xl font-bold">
+            <button onclick="startGame()" class="cartoon-btn w-full py-4 bg-yellow-400 text-indigo-950 text-2xl hover:bg-yellow-300 mb-3">
+                ابدأ المغامرة 🎮
+            </button>
+            <button onclick="showPinScreen()" class="cartoon-btn w-full py-3 bg-indigo-100 text-indigo-900 text-lg hover:bg-indigo-200">
+                🔒 لوحة المشاركين والنتائج
+            </button>
+        </div>
+
+        <!-- Pin Code Screen -->
+        <div id="pin-screen" class="cartoon-box p-8 text-center hidden">
+            <div class="text-6xl mb-4">🔐</div>
+            <h2 class="text-2xl font-black text-indigo-900 mb-2">منطقة مخصصة للمعلم</h2>
+            <p class="text-gray-500 font-bold text-sm mb-4">الرجاء إدخال الرمز السري لعرض النتائج</p>
+            <input type="password" id="pin-input" placeholder="أدخل الرمز السري..." class="w-full p-4 text-center text-xl mb-4 text-indigo-900 border-4 border-indigo-500 rounded-xl font-bold" maxlength="4">
+            <button onclick="verifyPin()" class="cartoon-btn w-full py-3 bg-green-400 text-indigo-950 text-xl mb-3 hover:bg-green-300">
+                دخول 🔓
+            </button>
+            <button onclick="backToStart()" class="cartoon-btn w-full py-3 bg-gray-200 text-indigo-900 text-lg">
+                ⬅️ رجوع
+            </button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="cartoon-box p-6 hidden">
+            <div class="flex justify-between items-center mb-6 bg-indigo-50 p-4 rounded-xl font-black text-indigo-900">
+                <div>⏱️ الوقت: <span id="timer" class="text-red-600">0</span>ث</div>
+                <div>السؤال: <span id="current-q-num">1</span>/10</div>
+                <div>⭐ العلامة: <span id="current-score" class="text-green-600">0</span></div>
+            </div>
+
+            <div class="mb-6">
+                <h3 id="question-text" class="text-xl font-black text-indigo-950 text-center min-h-[80px] flex items-center justify-center"></h3>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4"></div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="cartoon-box p-8 text-center hidden">
+            <div class="text-6xl mb-4">🏆</div>
+            <h2 class="text-3xl font-black text-indigo-900 mb-2">أحسنت صنعاً!</h2>
+            <p id="final-message" class="text-gray-600 font-bold text-lg mb-6"></p>
+            <div class="bg-indigo-50 p-4 rounded-2xl mb-6 font-black text-xl text-indigo-950 flex justify-around">
+                <div>العلامة: <span id="final-score" class="text-green-600">0</span>/100</div>
+                <div>الوقت: <span id="final-time" class="text-red-600">0</span> ثانية</div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="location.reload()" class="cartoon-btn flex-1 py-3 bg-yellow-400 text-indigo-950 text-lg">
+                    🔄 اللعب مجدداً
+                </button>
+                <button onclick="showPinScreenFromResults()" class="cartoon-btn flex-1 py-3 bg-indigo-600 text-white text-lg">
+                    🔒 لوحة النتائج
+                </button>
+            </div>
+        </div>
+
+        <!-- Leaderboard Screen -->
+        <div id="leaderboard-screen" class="cartoon-box p-6 hidden">
+            <div class="text-center mb-4">
+                <h2 class="text-3xl font-black text-indigo-900">🏆 لوحة المشاركين والنتائج</h2>
+                <p class="text-gray-500 font-bold text-sm mt-1">قائمة بجميع الطلاب الذين أنهوا التحدي</p>
+            </div>
+            <div id="leaderboard-list" class="space-y-3 mb-6 max-h-60 overflow-y-auto">
+                <!-- Data will load here -->
+            </div>
+            <button onclick="backToStart()" class="cartoon-btn w-full py-3 bg-indigo-600 text-white text-xl">
+                ⬅️ العودة للرئيسية
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { question: "ما إحداثيات النقطة (2, 3) بعد انسحابها 3 وحدات إلى اليمين؟", options: ["(5, 3)", "(-1, 3)", "(2, 6)", "(2, 0)"], correct: 0 },
+            { question: "ما إحداثيات النقطة (4, 5) بعد انسحابها وحدتين إلى اليسار؟", options: ["(6, 5)", "(2, 5)", "(4, 7)", "(4, 3)"], correct: 1 },
+            { question: "ما إحداثيات النقطة (1, 4) بعد انسحابها 3 وحدات إلى الأعلى؟", options: ["(1, 1)", "(4, 4)", "(1, 7)", "(-2, 4)"], correct: 2 },
+            { question: "ما إحداثيات النقطة (5, 6) بعد انسحابها 4 وحدات إلى الأسفل؟", options: ["(5, 2)", "(5, 10)", "(1, 6)", "(9, 6)"], correct: 0 },
+            { question: "إذا أُجري للنقطة (3, 2) انسحاب بمقدار وحدة واحدة إلى اليمين ثم وحدتين إلى الأعلى، فما إحداثياتها الجديدة؟", options: ["(4, 2)", "(2, 4)", "(4, 4)", "(2, 0)"], correct: 2 },
+            { question: "نقطة الأصل (0, 0) أُجري لها انسحاب 3 وحدات إلى اليسار ثم 4 وحدات إلى الأسفل، فما هي إحداثياتها؟", options: ["(3, 4)", "(-3, -4)", "(3, -4)", "(-3, 4)"], correct: 1 },
+            { question: "ما إحداثيات النقطة (-2, 1) بعد انسحابها 3 وحدات إلى اليمين؟", options: ["(1, 1)", "(-5, 1)", "(-2, 4)", "(-2, -2)"], correct: 0 },
+            { question: "النقطة (4, -3) أُجري لها انسحاب وحدتين إلى الأعلى، فما هي النقطة الجديدة؟", options: ["(4, -1)", "(4, -5)", "(6, -3)", "(2, -3)"], correct: 0 },
+            { question: "إذا تم سحب النقطة (0, 5) بمقدار 5 وحدات إلى الأسفل، فأين تقع؟", options: ["(5, 5)", "(0, 10)", "(0, 0)", "(-5, 5)"], correct: 2 },
+            { question: "ما إحداثيات النقطة (-1, -2) بعد انسحابها وحدة واحدة إلى اليمين ثم وحدة واحدة إلى الأعلى؟", options: ["(0, -1)", "(-2, -3)", "(0, -3)", "(-2, -1)"], correct: 0 }
+        ];
+
+        let currentQuestion = 0, score = 0, timerInterval, secondsElapsed = 0, playerName = "";
+        
+        // 🔑 الرمز السري المعين: 2208
+        const SECRET_PIN = "2208";
+        let returnScreen = "start-screen";
+
+        function showPinScreen() {
+            returnScreen = "start-screen";
+            document.getElementById("start-screen").classList.add("hidden");
+            document.getElementById("pin-screen").classList.remove("hidden");
+            document.getElementById("pin-input").value = "";
+        }
+
+        function showPinScreenFromResults() {
+            returnScreen = "result-screen";
+            document.getElementById("result-screen").classList.add("hidden");
+            document.getElementById("pin-screen").classList.remove("hidden");
+            document.getElementById("pin-input").value = "";
+        }
+
+        function verifyPin() {
+            const enteredPin = document.getElementById("pin-input").value.trim();
+            if (enteredPin === SECRET_PIN) {
+                document.getElementById("pin-screen").classList.add("hidden");
+                showLeaderboard();
+            } else {
+                alert("❌ الرمز السري غير صحيح!");
+                document.getElementById("pin-input").value = "";
+            }
+        }
+
+        function startGame() {
+            const input = document.getElementById("player-name");
+            playerName = input.value.trim();
+            if(!nameCheck(playerName)) { return; }
+            
+            document.getElementById("start-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            
+            secondsElapsed = 0;
+            score = 0;
+            currentQuestion = 0;
+            document.getElementById("current-score").innerText = score;
+            
+            timerInterval = setInterval(() => { 
+                secondsElapsed++; 
+                document.getElementById("timer").innerText = secondsElapsed; 
+            }, 1000);
+            
+            loadQuestion();
+        }
+
+        function nameCheck(name) {
+            if(!name) { 
+                alert("من فضلك أدخل اسمك الثلاثي لتوثيق النتيجة!"); 
+                return false; 
+            }
+            return true; 
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) { endGame(); return; }
+            const q = questions[currentQuestion];
+            document.getElementById("current-q-num").innerText = currentQuestion + 1;
+            document.getElementById("question-text").innerText = q.question;
+            const container = document.getElementById("options-container");
+            container.innerHTML = "";
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "cartoon-btn w-full p-4 bg-indigo-50 text-indigo-950 text-lg hover:bg-indigo-100 font-bold";
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(idx) {
+            const q = questions[currentQuestion];
+            if (idx === q.correct) score += 10;
+            document.getElementById("current-score").innerText = score;
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("result-screen").classList.remove("hidden");
+            document.getElementById("final-score").innerText = score;
+            document.getElementById("final-time").innerText = secondsElapsed;
+            document.getElementById("final-message").innerText = score >= 80 ? "أنت بطل رائع في الانسحاب! 🌟" : "محاولة جميلة يا بطل، جرب مرة أخرى لتصبح الأول! 💪";
+
+            saveScore(playerName, score, secondsElapsed);
+        }
+
+        function saveScore(name, sc, time) {
+            let leaderboard = JSON.parse(localStorage.getItem("math_participants") || "[]");
+            leaderboard.push({ name, score: sc, time, date: new Date().toLocaleDateString('ar-SA') });
+            leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+            localStorage.setItem("math_participants", JSON.stringify(leaderboard));
+        }
+
+        function showLeaderboard() {
+            document.getElementById("pin-screen").classList.add("hidden");
+            document.getElementById("leaderboard-screen").classList.remove("hidden");
+
+            const list = document.getElementById("leaderboard-list");
+            list.innerHTML = "";
+
+            let leaderboard = JSON.parse(localStorage.getItem("math_participants") || "[]");
+
+            if (leaderboard.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 font-bold text-center py-4">لا يوجد مشاركون مسجلون حتى الآن.</p>`;
+                return;
+            }
+
+            leaderboard.forEach((entry, index) => {
+                const item = document.createElement("div");
+                item.className = "flex justify-between items-center bg-indigo-50 p-3 rounded-xl border-2 border-indigo-200 font-bold text-indigo-950";
+                
+                let medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🏅";
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">${medal}</span>
+                        <span>${entry.name}</span>
+                    </div>
+                    <div class="flex gap-3 text-sm">
+                        <span class="text-green-600 font-black">${entry.score} علامة</span>
+                        <span class="text-red-600 font-black">${entry.time} ث</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function backToStart() {
+            document.getElementById("pin-screen").classList.add("hidden");
+            document.getElementById("leaderboard-screen").classList.add("hidden");
+            document.getElementById(returnScreen).classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
